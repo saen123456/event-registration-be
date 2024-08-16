@@ -27,7 +27,7 @@ router.post("/register", async (req, res) => {
 
 // ดูรายชื่อผู้ลงทะเบียน
 router.get("/registrations", async (req, res) => {
-  const registrations = await Registration.find().sort({ createdAt: -1 });
+  const registrations = await Registration.find().sort({ createdAt: 1 });
   res.json(registrations);
 });
 
