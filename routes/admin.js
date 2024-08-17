@@ -1,21 +1,26 @@
 const express = require("express");
 const router = express.Router();
 const Settings = require("../models/Settings");
+const Registration = require("../models/Registration");
 
 // ตั้งค่าที่นั่งทั้งหมด
 router.post("/set-seats", async (req, res) => {
   const { totalSeats } = req.body;
 
   let settings = await Settings.findOne();
+    const registrations = await Registration.find().sort({ createdAt: 1 });
+
   if (!settings) {
     settings = new Settings({ totalSeats, availableSeats: totalSeats });
   } else {
-    settings.availableSeats += totalSeats - settings.totalSeats;
+    settings.availableSeats = totalSeats - registrations.length;
     settings.totalSeats = totalSeats;
   }
 
   await settings.save();
-  res.status(200).json(settings);
+
+
+  res.status(200).json(registrations);
 });
 
 // ดูรายชื่อผู้ลงทะเบียน (เหมือน user)

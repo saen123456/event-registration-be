@@ -27,6 +27,29 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// ยกเลิกลงทะเบียนเข้างาน
+router.post("/cancel/register", async (req, res) => {
+  try {
+    const { id } = req.body;
+    const settings = await Settings.findOne();
+
+    if (settings.availableSeats <= 0) {
+      return res.status(400).json({ message: "No available seats" });
+    }
+
+    const result = await Registration.findByIdAndDelete(id);
+
+    const registrations = await Registration.find().sort({ createdAt: 1 });
+
+    settings.availableSeats = settings.totalSeats - registrations.length;
+    await settings.save();
+
+    res.status(201).json(registrations);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 // ดูรายชื่อผู้ลงทะเบียน
 router.get("/registrations", async (req, res) => {
   const registrations = await Registration.find().sort({ createdAt: 1 });
@@ -36,7 +59,10 @@ router.get("/registrations", async (req, res) => {
 // ดูจำนวนที่นั่งคงเหลือ
 router.get("/available-seats", async (req, res) => {
   const settings = await Settings.findOne();
-  res.json({ availableSeats: settings.availableSeats });
+  res.json({
+    availableSeats: settings.availableSeats,
+    totalSeats: settings.totalSeats,
+  });
 });
 
 // ดูจำนวนผู้ลงทะเบียนทั้งหมด
