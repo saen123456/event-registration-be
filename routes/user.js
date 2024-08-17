@@ -19,7 +19,9 @@ router.post("/register", async (req, res) => {
     settings.availableSeats -= 1;
     await settings.save();
 
-    res.status(201).json(newRegistration);
+    const registrations = await Registration.find().sort({ createdAt: 1 });
+
+    res.status(201).json(registrations);
   } catch (error) {
     console.log(error);
   }
